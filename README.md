@@ -60,22 +60,28 @@ claude --plugin-dir /path/to/claude-plugin-auto-worktree
 User starts Claude in main repo
          │
          ▼
-Claude tries to Write/Edit a file
+SessionStart hook fires ─── On default branch? → Proactively tells Claude to use EnterWorktree
+         │
+         ▼
+Claude calls EnterWorktree → creates .claude/worktrees/<name>/
+         │
+         ▼
+All file modifications happen safely in the worktree
+         │
+         ▼
+Session ends → Stop hook prints summary (branch, uncommitted changes)
+```
+
+If Claude skips the proactive instruction, the **PreToolUse hook** acts as a safety net:
+
+```
+Claude tries to Write/Edit a file on default branch
          │
          ▼
 PreToolUse hook intercepts ──────── Already in a worktree? → Allow
          │
          ▼
 Blocks action (exit 2) + tells Claude to call EnterWorktree
-         │
-         ▼
-Claude calls EnterWorktree → creates .claude/worktrees/<name>/
-         │
-         ▼
-Claude retries in the worktree → All subsequent operations happen there
-         │
-         ▼
-Session ends → Stop hook prints summary (branch, uncommitted changes)
 ```
 
 ### Worktree Location
@@ -122,7 +128,8 @@ claude-plugin-auto-worktree/
 │   └── plugin.json          # Plugin manifest
 ├── hooks/
 │   ├── hooks.json           # Hook definitions
-│   ├── pre-tool-use.sh      # Main hook: block and redirect to EnterWorktree
+│   ├── session-start.sh     # Proactive instruction at session start
+│   ├── pre-tool-use.sh      # Safety net: block and redirect to EnterWorktree
 │   └── stop.sh              # Session end summary
 ├── lib/
 │   ├── worktree.sh          # Git worktree detection helpers
@@ -131,7 +138,8 @@ claude-plugin-auto-worktree/
 │   ├── run-tests.sh         # Test runner
 │   ├── test-bash-filter.sh  # Mutation detection tests
 │   ├── test-worktree.sh     # Worktree detection tests
-│   ├── test-pre-tool-use.sh # Integration tests
+│   ├── test-pre-tool-use.sh # PreToolUse integration tests
+│   ├── test-session-start.sh # SessionStart hook tests
 │   └── test-stop.sh         # Stop hook tests
 ├── LICENSE
 └── README.md

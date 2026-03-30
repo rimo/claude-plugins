@@ -10,6 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
 
 source "${PLUGIN_ROOT}/lib/worktree.sh"
+source "${PLUGIN_ROOT}/lib/config.sh"
 
 parse_json_field() {
   local json="$1"
@@ -39,6 +40,11 @@ main() {
     exit 0
   fi
 
+  # Skipped directory? → no-op
+  if is_skipped_directory "$cwd"; then
+    exit 0
+  fi
+
   # Already inside a worktree? → no-op
   if is_inside_worktree "$cwd"; then
     exit 0
@@ -47,6 +53,13 @@ main() {
   # Not on the default branch? → no-op (user intentionally on a branch)
   if ! is_on_default_branch "$cwd"; then
     exit 0
+  fi
+
+  # Pull the latest default branch from origin if enabled (8s timeout)
+  if is_pull_enabled; then
+    if ! timeout 8 git -C "$cwd" pull --ff-only --quiet 2>/dev/null; then
+      echo "[auto-worktree] Warning: failed to pull from origin (offline, timeout, or diverged). Continuing with local state." >&2
+    fi
   fi
 
   # On the default branch in main repo → instruct Claude proactively

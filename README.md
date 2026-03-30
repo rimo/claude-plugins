@@ -107,6 +107,38 @@ The plugin only blocks Bash commands that use output redirects (`>`, `>>`) to wr
 - **Allowed**: all commands without redirects (`git checkout`, `npm install`, `rm`, `touch`, `mv`, etc.), redirects to `/tmp`, `/dev/null`, gitignored files, or paths outside the repo
 - **Blocked**: `echo "data" > tracked-file.txt`, `cat input >> src/main.py`, etc. (redirects to tracked repo files)
 
+## Configuration
+
+The plugin supports user-configurable options via Claude Code's `userConfig` mechanism. After installing the plugin, you can set these options in your `~/.claude/settings.json` under `pluginConfigs`:
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `skip_directories` | Comma-separated list of git repository root paths where auto-worktree should not activate | (empty) |
+| `pull_default_branch` | Pull the latest default branch from origin on session start. Uses fast-forward only — local changes are never overwritten. Silently continues on failure. | `true` |
+
+### Example settings.json
+
+```json
+{
+  "pluginConfigs": {
+    "auto-worktree@rimoapp-plugins": {
+      "options": {
+        "skip_directories": "/Users/me/notes,/Users/me/scratch",
+        "pull_default_branch": "false"
+      }
+    }
+  }
+}
+```
+
+### skip_directories
+
+Repositories whose root path matches an entry here will be completely ignored by the plugin — no worktree enforcement, no session-start instructions. The match is based on the git repository root, so specifying `/Users/me/notes` will skip the entire repository regardless of which subdirectory Claude is working in. Useful for personal repos, notes, or scratch directories where you want to edit directly on the default branch.
+
+### pull_default_branch
+
+When enabled (the default), the plugin runs `git pull --ff-only` at session start (with an 8-second timeout) to ensure the local default branch is up to date before creating a worktree. If the pull fails (e.g. offline, timeout, diverged history), the plugin continues with the local state and prints a warning. Set to `false` to skip this entirely.
+
 ## Cleanup
 
 Worktree cleanup is handled by Claude Code's built-in `ExitWorktree` tool. When a session ends while in a worktree, the user is prompted to keep or remove it.
@@ -133,10 +165,13 @@ claude-plugin-auto-worktree/
 │   └── stop.sh              # Session end summary
 ├── lib/
 │   ├── worktree.sh          # Git worktree detection helpers
-│   └── bash-filter.sh       # Mutation detection heuristic
+│   ├── bash-filter.sh       # Mutation detection heuristic
+│   └── config.sh            # User configuration helpers
 ├── tests/
 │   ├── run-tests.sh         # Test runner
 │   ├── test-bash-filter.sh  # Mutation detection tests
+│   ├── test-config.sh       # Configuration unit tests
+│   ├── test-config-integration.sh # Configuration integration tests
 │   ├── test-worktree.sh     # Worktree detection tests
 │   ├── test-pre-tool-use.sh # PreToolUse integration tests
 │   ├── test-session-start.sh # SessionStart hook tests

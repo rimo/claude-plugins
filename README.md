@@ -114,7 +114,7 @@ The plugin supports user-configurable options via Claude Code's `userConfig` mec
 | Option | Description | Default |
 |--------|-------------|---------|
 | `skip_directories` | Comma-separated list of git repository root paths where auto-worktree should not activate | (empty) |
-| `fetch_default_branch` | Fetch the latest default branch from origin on session start | `true` |
+| `pull_default_branch` | Pull (fast-forward) the latest default branch from origin on session start | `true` |
 
 ### Example settings.json
 
@@ -124,7 +124,7 @@ The plugin supports user-configurable options via Claude Code's `userConfig` mec
     "auto-worktree@rimoapp-plugins": {
       "options": {
         "skip_directories": "/Users/me/notes,/Users/me/scratch",
-        "fetch_default_branch": "false"
+        "pull_default_branch": "false"
       }
     }
   }
@@ -135,7 +135,7 @@ The plugin supports user-configurable options via Claude Code's `userConfig` mec
 
 Repositories whose root path matches an entry here will be completely ignored by the plugin — no worktree enforcement, no session-start instructions. The match is based on the git repository root, so specifying `/Users/me/notes` will skip the entire repository regardless of which subdirectory Claude is working in. Useful for personal repos, notes, or scratch directories where you want to edit directly on the default branch.
 
-### fetch_default_branch
+### pull_default_branch
 
 When enabled (the default), the plugin runs `git pull --ff-only` at session start (with an 8-second timeout) to ensure the local default branch is up to date before creating a worktree. If the pull fails (e.g. offline, timeout, diverged history), the plugin continues with the local state and prints a warning. Set to `false` to skip this entirely.
 

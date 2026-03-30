@@ -42,11 +42,11 @@ is_skipped_directory() {
   return 1
 }
 
-# Check if fetch_default_branch is enabled.
-# Reads CLAUDE_PLUGIN_OPTION_FETCH_DEFAULT_BRANCH.
+# Check if pull_default_branch is enabled.
+# Reads CLAUDE_PLUGIN_OPTION_PULL_DEFAULT_BRANCH.
 # Returns: 0 if enabled (default), 1 if explicitly disabled.
-is_fetch_enabled() {
-  local val="${CLAUDE_PLUGIN_OPTION_FETCH_DEFAULT_BRANCH:-true}"
+is_pull_enabled() {
+  local val="${CLAUDE_PLUGIN_OPTION_PULL_DEFAULT_BRANCH:-true}"
   # Treat "false", "0", "no", "off" as disabled
   case "${val,,}" in
     false|0|no|off) return 1 ;;

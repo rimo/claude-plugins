@@ -11,8 +11,8 @@
       "description": "Comma-separated list of git repository root paths where auto-worktree should not activate (e.g. /path/to/notes,/path/to/scratch)",
       "sensitive": false
     },
-    "fetch_default_branch": {
-      "description": "Fetch the latest default branch from origin on session start (true/false, default: true)",
+    "pull_default_branch": {
+      "description": "Pull (fast-forward) the latest default branch from origin on session start (true/false, default: true)",
       "sensitive": false
     }
   }

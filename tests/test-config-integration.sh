@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Integration tests for userConfig options with hooks.
-# Tests skip_directories and fetch_default_branch behavior in actual hooks.
+# Tests skip_directories and pull_default_branch behavior in actual hooks.
 
 set -euo pipefail
 
@@ -94,17 +94,17 @@ echo "{\"session_id\":\"${SESSION}-5\",\"tool_name\":\"Write\",\"tool_input\":{\
   | bash "${PLUGIN_ROOT}/hooks/pre-tool-use.sh" 2>/dev/null || exit_code=$?
 assert_exit_code 0 "$exit_code" "pre-tool-use: Write in subdirectory of skipped dir should exit 0"
 
-# --- fetch_default_branch with session-start.sh ---
+# --- pull_default_branch with session-start.sh ---
 
 # Test 6: fetch disabled → session-start still outputs instruction (just no fetch)
 export CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES=""
-export CLAUDE_PLUGIN_OPTION_FETCH_DEFAULT_BRANCH="false"
+export CLAUDE_PLUGIN_OPTION_PULL_DEFAULT_BRANCH="false"
 output="$(echo "{\"cwd\":\"${REPO_DIR}\"}" | bash "${PLUGIN_ROOT}/hooks/session-start.sh" 2>/dev/null || true)"
 assert_output "EnterWorktree" "$output" "session-start: fetch disabled still outputs instruction"
 
 # Cleanup
 unset CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES 2>/dev/null || true
-unset CLAUDE_PLUGIN_OPTION_FETCH_DEFAULT_BRANCH 2>/dev/null || true
+unset CLAUDE_PLUGIN_OPTION_PULL_DEFAULT_BRANCH 2>/dev/null || true
 
 echo "${PASS} passed, ${FAIL} failed"
 

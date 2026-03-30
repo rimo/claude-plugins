@@ -56,7 +56,7 @@ main() {
   fi
 
   # Pull the latest default branch from origin if enabled (8s timeout)
-  if is_fetch_enabled; then
+  if is_pull_enabled; then
     if ! timeout 8 git -C "$cwd" pull --ff-only --quiet 2>/dev/null; then
       echo "[auto-worktree] Warning: failed to pull from origin (offline, timeout, or diverged). Continuing with local state." >&2
     fi

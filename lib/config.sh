@@ -3,9 +3,9 @@
 # Reads user config from CLAUDE_PLUGIN_OPTION_* environment variables.
 
 # Check if the given directory should be skipped by auto-worktree.
-# Reads CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES (comma-separated absolute paths).
+# Resolves the git repository root and matches against CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES.
 # Arguments: $1 = directory path (cwd)
-# Returns: 0 if the directory should be skipped, 1 otherwise.
+# Returns: 0 if the repository should be skipped, 1 otherwise.
 is_skipped_directory() {
   local dir="$1"
   local skip_dirs="${CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES:-}"
@@ -14,10 +14,11 @@ is_skipped_directory() {
     return 1
   fi
 
-  # Resolve the directory to a real path for consistent comparison
-  local resolved_dir="$dir"
+  # Resolve to the git repository root for consistent matching
+  local repo_root
+  repo_root="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" || return 1
   if command -v realpath &>/dev/null; then
-    resolved_dir="$(realpath "$dir" 2>/dev/null)" || resolved_dir="$dir"
+    repo_root="$(realpath "$repo_root" 2>/dev/null)" || true
   fi
 
   local IFS=','
@@ -32,8 +33,8 @@ is_skipped_directory() {
       resolved_skip="$(realpath "$skip_dir" 2>/dev/null)" || resolved_skip="$skip_dir"
     fi
 
-    # Match if cwd is the skip dir or a subdirectory of it
-    if [[ "$resolved_dir" == "$resolved_skip" || "$resolved_dir" == "$resolved_skip/"* ]]; then
+    # Match if the repo root equals the skip dir
+    if [[ "$repo_root" == "$resolved_skip" ]]; then
       return 0
     fi
   done

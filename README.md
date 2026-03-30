@@ -113,7 +113,7 @@ The plugin supports user-configurable options via Claude Code's `userConfig` mec
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `skip_directories` | Comma-separated list of absolute directory paths where auto-worktree should not activate | (empty) |
+| `skip_directories` | Comma-separated list of git repository root paths where auto-worktree should not activate | (empty) |
 | `fetch_default_branch` | Fetch the latest default branch from origin on session start | `true` |
 
 ### Example settings.json
@@ -133,11 +133,11 @@ The plugin supports user-configurable options via Claude Code's `userConfig` mec
 
 ### skip_directories
 
-Directories listed here (and their subdirectories) will be completely ignored by the plugin — no worktree enforcement, no session-start instructions. Useful for personal repos, notes, or scratch directories where you want to edit directly on the default branch.
+Repositories whose root path matches an entry here will be completely ignored by the plugin — no worktree enforcement, no session-start instructions. The match is based on the git repository root, so specifying `/Users/me/notes` will skip the entire repository regardless of which subdirectory Claude is working in. Useful for personal repos, notes, or scratch directories where you want to edit directly on the default branch.
 
 ### fetch_default_branch
 
-When enabled (the default), the plugin runs `git fetch origin --quiet` at session start to ensure the default branch is up to date before creating a worktree. Set to `false` to disable this if you're working offline or want faster session startup.
+When enabled (the default), the plugin runs `git fetch origin` at session start (with a 5-second timeout) to ensure the default branch is up to date before creating a worktree. If the fetch fails (e.g. offline, timeout, auth required), the plugin continues with the local state and prints a warning. Set to `false` to skip this entirely.
 
 ## Cleanup
 

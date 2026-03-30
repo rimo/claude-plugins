@@ -55,9 +55,11 @@ main() {
     exit 0
   fi
 
-  # Fetch the latest default branch from origin if enabled
+  # Fetch the latest default branch from origin if enabled (5s timeout)
   if is_fetch_enabled; then
-    git -C "$cwd" fetch origin --quiet 2>/dev/null || true
+    if ! timeout 5 git -C "$cwd" fetch origin --quiet 2>/dev/null; then
+      echo "[auto-worktree] Warning: failed to fetch from origin (offline or timeout). Continuing with local state." >&2
+    fi
   fi
 
   # On the default branch in main repo → instruct Claude proactively

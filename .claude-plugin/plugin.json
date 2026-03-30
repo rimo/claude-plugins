@@ -8,7 +8,7 @@
   "license": "MIT",
   "userConfig": {
     "skip_directories": {
-      "description": "Comma-separated list of absolute directory paths where auto-worktree should not activate (e.g. /path/to/notes,/path/to/scratch)",
+      "description": "Comma-separated list of git repository root paths where auto-worktree should not activate (e.g. /path/to/notes,/path/to/scratch)",
       "sensitive": false
     },
     "fetch_default_branch": {

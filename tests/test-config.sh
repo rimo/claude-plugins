@@ -8,6 +8,20 @@ PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
 
 source "${PLUGIN_ROOT}/lib/config.sh"
 
+# Create temporary git repos for testing (is_skipped_directory resolves repo root)
+TEMP_DIR="$(mktemp -d)"
+trap 'cd /; rm -rf "$TEMP_DIR"' EXIT
+
+REPO_A="${TEMP_DIR}/repo-a"
+REPO_B="${TEMP_DIR}/repo-b"
+mkdir -p "$REPO_A/subdir" "$REPO_B"
+git -C "$REPO_A" init -b main &>/dev/null
+git -C "$REPO_A" config commit.gpgsign false
+git -C "$REPO_A" commit --allow-empty -m "init" &>/dev/null
+git -C "$REPO_B" init -b main &>/dev/null
+git -C "$REPO_B" config commit.gpgsign false
+git -C "$REPO_B" commit --allow-empty -m "init" &>/dev/null
+
 PASS=0
 FAIL=0
 
@@ -37,33 +51,35 @@ assert_false() {
 
 # Test 1: No skip_directories set → not skipped
 unset CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES 2>/dev/null || true
-assert_false "Empty env → not skipped" is_skipped_directory "/some/dir"
+assert_false "Empty env → not skipped" is_skipped_directory "$REPO_A"
 
-# Test 2: Exact match
-export CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES="/Users/test/notes"
-assert_true "Exact match should be skipped" is_skipped_directory "/Users/test/notes"
+# Test 2: Exact repo root match
+export CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES="$REPO_A"
+assert_true "Exact repo root match should be skipped" is_skipped_directory "$REPO_A"
 
-# Test 3: Subdirectory match
-assert_true "Subdirectory should be skipped" is_skipped_directory "/Users/test/notes/2024"
+# Test 3: Subdirectory of skipped repo → skipped (resolves to same repo root)
+assert_true "Subdirectory should resolve to repo root and be skipped" is_skipped_directory "$REPO_A/subdir"
 
-# Test 4: Non-matching directory
-assert_false "Non-matching dir should not be skipped" is_skipped_directory "/Users/test/code"
+# Test 4: Different repo → not skipped
+assert_false "Different repo should not be skipped" is_skipped_directory "$REPO_B"
 
 # Test 5: Multiple directories, second matches
-export CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES="/Users/test/notes,/Users/test/scratch"
-assert_true "Second entry should match" is_skipped_directory "/Users/test/scratch"
+export CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES="/nonexistent,$REPO_B"
+assert_true "Second entry should match" is_skipped_directory "$REPO_B"
 
 # Test 6: Multiple directories with spaces
-export CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES="/Users/test/notes , /Users/test/scratch"
-assert_true "Trimmed entry should match" is_skipped_directory "/Users/test/scratch"
+export CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES="/nonexistent , $REPO_A"
+assert_true "Trimmed entry should match" is_skipped_directory "$REPO_A"
 
-# Test 7: Partial path should not match (prefix but not at directory boundary)
-export CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES="/Users/test/not"
-assert_false "Partial path should not match" is_skipped_directory "/Users/test/notes"
+# Test 7: Non-git directory → not skipped (git rev-parse fails)
+NON_GIT_DIR="$(mktemp -d)"
+export CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES="$NON_GIT_DIR"
+assert_false "Non-git directory should not be skipped" is_skipped_directory "$NON_GIT_DIR"
+rmdir "$NON_GIT_DIR"
 
 # Test 8: Empty string in skip list
 export CLAUDE_PLUGIN_OPTION_SKIP_DIRECTORIES=","
-assert_false "Empty entries should not match" is_skipped_directory "/some/dir"
+assert_false "Empty entries should not match" is_skipped_directory "$REPO_A"
 
 # --- is_fetch_enabled tests ---
 

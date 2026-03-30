@@ -12,7 +12,7 @@
       "sensitive": false
     },
     "pull_default_branch": {
-      "description": "Pull (fast-forward) the latest default branch from origin on session start (true/false, default: true)",
+      "description": "Pull the latest default branch from origin on session start. Uses fast-forward only, so local changes are never overwritten. If the pull fails (offline, timeout, or diverged history), the plugin silently continues with the local state. (true/false, default: true)",
       "sensitive": false
     }
   }

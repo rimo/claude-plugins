@@ -114,7 +114,7 @@ The plugin supports user-configurable options via Claude Code's `userConfig` mec
 | Option | Description | Default |
 |--------|-------------|---------|
 | `skip_directories` | Comma-separated list of git repository root paths where auto-worktree should not activate | (empty) |
-| `pull_default_branch` | Pull (fast-forward) the latest default branch from origin on session start | `true` |
+| `pull_default_branch` | Pull the latest default branch from origin on session start. Uses fast-forward only — local changes are never overwritten. Silently continues on failure. | `true` |
 
 ### Example settings.json
 

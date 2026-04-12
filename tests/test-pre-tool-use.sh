@@ -11,12 +11,17 @@ PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
 TEMP_DIR="$(mktemp -d)"
 trap 'cd /; rm -rf "$TEMP_DIR"' EXIT
 
+# Create a bare remote so that the test repo has a remote configured
+REMOTE_DIR="${TEMP_DIR}/remote.git"
+git init --bare -b main "$REMOTE_DIR" &>/dev/null
+
 REPO_DIR="${TEMP_DIR}/test-repo"
 mkdir -p "$REPO_DIR"
 cd "$REPO_DIR"
 git init -b main &>/dev/null
 git config commit.gpgsign false
 git commit --allow-empty -m "initial commit" &>/dev/null
+git remote add origin "$REMOTE_DIR" &>/dev/null
 
 HOOK="${PLUGIN_ROOT}/hooks/pre-tool-use.sh"
 
@@ -159,6 +164,19 @@ assert_exit_code 0 "$result" "Bash redirect on non-default branch should exit 0"
 
 # Switch back to main for remaining tests
 git -C "$REPO_DIR" checkout main &>/dev/null
+
+# --- Test 25: Write in repo with no remote → exit 0 (allow) ---
+NO_REMOTE_DIR="${TEMP_DIR}/no-remote-repo"
+mkdir -p "$NO_REMOTE_DIR"
+git -C "$NO_REMOTE_DIR" init -b main &>/dev/null
+git -C "$NO_REMOTE_DIR" config commit.gpgsign false
+git -C "$NO_REMOTE_DIR" commit --allow-empty -m "init" &>/dev/null
+result="$(run_hook "{\"session_id\":\"${SESSION}-25\",\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"${NO_REMOTE_DIR}/test.txt\"},\"cwd\":\"${NO_REMOTE_DIR}\"}")"
+assert_exit_code 0 "$result" "Write in repo with no remote should exit 0"
+
+# --- Test 26: Bash redirect in repo with no remote → exit 0 (allow) ---
+result="$(run_hook "{\"session_id\":\"${SESSION}-26\",\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"echo hello > src/main.py\"},\"cwd\":\"${NO_REMOTE_DIR}\"}")"
+assert_exit_code 0 "$result" "Bash redirect in repo with no remote should exit 0"
 
 # --- Test 15: EnterWorktree in worktree → exit 2 (block) ---
 result="$(run_hook "{\"session_id\":\"${SESSION}-15\",\"tool_name\":\"EnterWorktree\",\"tool_input\":{},\"cwd\":\"${WORKTREE_DIR}\"}")"

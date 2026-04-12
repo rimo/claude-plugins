@@ -11,12 +11,17 @@ PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
 TEMP_DIR="$(mktemp -d)"
 trap 'cd /; rm -rf "$TEMP_DIR"' EXIT
 
+# Create a bare remote so that the test repo has a remote configured
+REMOTE_DIR="${TEMP_DIR}/remote.git"
+git init --bare -b main "$REMOTE_DIR" &>/dev/null
+
 REPO_DIR="${TEMP_DIR}/test-repo"
 mkdir -p "$REPO_DIR"
 cd "$REPO_DIR"
 git init -b main &>/dev/null
 git config commit.gpgsign false
 git commit --allow-empty -m "initial commit" &>/dev/null
+git remote add origin "$REMOTE_DIR" &>/dev/null
 
 HOOK="${PLUGIN_ROOT}/hooks/session-start.sh"
 
@@ -89,6 +94,15 @@ else
   FAIL=$((FAIL + 1))
   echo "FAIL: Exit code should always be 0, got ${exit_code}" >&2
 fi
+
+# --- Test 8: No remote configured → no output ---
+NO_REMOTE_DIR="${TEMP_DIR}/no-remote-repo"
+mkdir -p "$NO_REMOTE_DIR"
+git -C "$NO_REMOTE_DIR" init -b main &>/dev/null
+git -C "$NO_REMOTE_DIR" config commit.gpgsign false
+git -C "$NO_REMOTE_DIR" commit --allow-empty -m "init" &>/dev/null
+output="$(run_hook "{\"cwd\":\"${NO_REMOTE_DIR}\"}")"
+assert_empty "$output" "No remote configured should produce no output"
 
 # --- Cleanup ---
 git -C "$REPO_DIR" worktree remove "$WORKTREE_DIR" 2>/dev/null || true

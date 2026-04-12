@@ -39,6 +39,11 @@ main() {
     exit 0
   fi
 
+  # 1.6. No remote configured? → no-op (local-only repo, no PR workflow)
+  if ! has_remote "$cwd"; then
+    exit 0
+  fi
+
   # 2. Already inside a worktree? → allow (but block EnterWorktree)
   if is_inside_worktree "$cwd"; then
     if [[ "$tool_name" == "EnterWorktree" ]]; then

@@ -102,5 +102,21 @@ assert_true "on default branch (develop via origin/HEAD)" is_on_default_branch "
 git -C "$CLONE_REPO" checkout -b other-branch &>/dev/null
 assert_false "on non-default branch in clone" is_on_default_branch "$CLONE_REPO"
 
+# --- Test has_remote ---
+
+# Repo without remote → false
+NO_REMOTE_REPO="${TEMP_DIR}/no-remote-repo"
+mkdir -p "$NO_REMOTE_REPO"
+git -C "$NO_REMOTE_REPO" init -b main &>/dev/null
+git -C "$NO_REMOTE_REPO" config commit.gpgsign false
+git -C "$NO_REMOTE_REPO" commit --allow-empty -m "init" &>/dev/null
+assert_false "no remote configured" has_remote "$NO_REMOTE_REPO"
+
+# Repo with remote → true (CLONE_REPO was cloned from REMOTE_REPO above)
+assert_true "has remote in cloned repo" has_remote "$CLONE_REPO"
+
+# Non-git dir → false
+assert_false "has_remote in non-git dir" has_remote "/tmp"
+
 echo "${PASS} passed, ${FAIL} failed"
 if [[ $FAIL -gt 0 ]]; then exit 1; fi

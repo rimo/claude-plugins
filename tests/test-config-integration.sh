@@ -11,12 +11,17 @@ PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
 TEMP_DIR="$(mktemp -d)"
 trap 'cd /; rm -rf "$TEMP_DIR"' EXIT
 
+# Create a bare remote so that the test repo has a remote configured
+REMOTE_DIR="${TEMP_DIR}/remote.git"
+git init --bare -b main "$REMOTE_DIR" &>/dev/null
+
 REPO_DIR="${TEMP_DIR}/test-repo"
 mkdir -p "$REPO_DIR"
 cd "$REPO_DIR"
 git init -b main &>/dev/null
 git config commit.gpgsign false
 git commit --allow-empty -m "initial commit" &>/dev/null
+git remote add origin "$REMOTE_DIR" &>/dev/null
 
 PASS=0
 FAIL=0

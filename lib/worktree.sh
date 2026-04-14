@@ -61,6 +61,16 @@ is_on_default_branch() {
   [[ "$current_branch" == "$default_branch" ]]
 }
 
+# Check if the given git repository has at least one remote configured.
+# Arguments: $1 = directory path
+# Returns: 0 if at least one remote exists, 1 otherwise.
+has_remote() {
+  local dir="$1"
+  local remotes
+  remotes="$(git -C "$dir" remote 2>/dev/null)" || return 1
+  [[ -n "$remotes" ]]
+}
+
 is_outside_repo_or_ignored() {
   local dir="$1"
   local file_path="$2"

@@ -34,6 +34,11 @@ main() {
     exit 0
   fi
 
+  # No remote configured? → no-op (local-only repo, no PR workflow)
+  if ! has_remote "$cwd"; then
+    exit 0
+  fi
+
   # Already inside a worktree? → no-op
   if is_inside_worktree "$cwd"; then
     exit 0

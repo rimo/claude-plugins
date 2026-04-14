@@ -15,5 +15,5 @@ jobs:
         run: |
           git config --global user.name "CI"
           git config --global user.email "ci@test"
-- name: Run tests
+      - name: Run tests
         run: bash tests/run-tests.sh

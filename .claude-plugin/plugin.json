@@ -8,15 +8,21 @@
   "license": "MIT",
   "userConfig": {
     "skip_directories": {
+      "title": "Skip Directories",
+      "type": "string",
       "description": "Comma-separated list of git repository root paths where auto-worktree should not activate (e.g. /path/to/notes,/path/to/scratch)",
       "sensitive": false
     },
     "pull_default_branch": {
-      "description": "Pull the latest default branch from origin on session start. Uses fast-forward only, so local changes are never overwritten. If the pull fails (offline, timeout, or diverged history), the plugin silently continues with the local state. (true/false, default: true)",
+      "title": "Pull Default Branch",
+      "type": "boolean",
+      "description": "Pull the latest default branch from origin on session start. Uses fast-forward only, so local changes are never overwritten. If the pull fails (offline, timeout, or diverged history), the plugin silently continues with the local state. (default: true)",
       "sensitive": false
     },
     "sync_gitignored_writes": {
-      "description": "Automatically copy gitignored files written in a worktree back to the main repository. Covers Write/Edit tool calls and Bash output redirects to gitignored paths. (true/false, default: true)",
+      "title": "Sync Gitignored Writes",
+      "type": "boolean",
+      "description": "Automatically copy gitignored files written in a worktree back to the main repository. Covers Write/Edit tool calls and Bash output redirects to gitignored paths. (default: true)",
       "sensitive": false
     }
   }

@@ -1,0 +1,19 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure git
+        run: |
+          git config --global user.name "CI"
+          git config --global user.email "ci@test"
+      - name: Run tests
+        run: bash tests/run-tests.sh

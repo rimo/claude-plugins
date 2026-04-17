@@ -12,15 +12,22 @@ PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
 source "${PLUGIN_ROOT}/lib/json.sh"
 source "${PLUGIN_ROOT}/lib/worktree.sh"
 source "${PLUGIN_ROOT}/lib/config.sh"
+source "${PLUGIN_ROOT}/lib/bypass.sh"
 
 main() {
   local input
   input="$(cat)"
 
-  local cwd
+  local session_id cwd
+  session_id="$(parse_json_field "$input" '.session_id')"
   cwd="$(parse_json_field "$input" '.cwd')"
 
   if [[ -z "$cwd" ]]; then
+    exit 0
+  fi
+
+  # Bypass active for this session? → no-op
+  if [[ -n "$session_id" ]] && is_bypass_active "$session_id"; then
     exit 0
   fi
 
@@ -58,11 +65,16 @@ main() {
 
   # On the default branch in main repo → instruct Claude proactively
   # stdout output is added as context for Claude
-  cat <<'MSG'
+  local bypass_file
+  bypass_file="$(get_bypass_file "$session_id")"
+
+  cat <<MSG
 [auto-worktree] You are currently on the default branch in the main repository.
 IMPORTANT: Before modifying any files, you MUST call the EnterWorktree tool first to create an isolated worktree.
 Do NOT attempt to Write, Edit, or run mutating Bash commands before entering a worktree.
 TIP: Skills and files created after EnterWorktree are immediately testable in the worktree — no merge required.
+BYPASS: If the user explicitly asks to skip or disable worktree creation (in any language or phrasing), run: touch ${bypass_file}
+This disables worktree enforcement for the rest of this session. Only do this when the user clearly requests it.
 MSG
 
   exit 0

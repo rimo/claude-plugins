@@ -156,6 +156,16 @@ When enabled (the default), files written to gitignored paths inside a worktree 
 
 Set to `false` to disable this behavior entirely.
 
+## Session Bypass
+
+If the plugin incorrectly blocks an action, you can ask Claude to skip worktree enforcement for the current session using natural language — any phrasing works:
+
+- "worktree作らなくていい" / "auto-worktree 無視して"
+- "don't need a worktree" / "skip worktree" / "no worktree please"
+- Or any other way of expressing the same intent
+
+Claude will run `touch <bypass-flag-file>` to disable enforcement for the rest of the session. The flag is stored in the system temp directory (`$TMPDIR` / `$TMP` / `$TEMP` / `/tmp`) and does **not** affect other sessions.
+
 ## Cleanup
 
 Worktree cleanup is handled by Claude Code's built-in `ExitWorktree` tool. When a session ends while in a worktree, the user is prompted to keep or remove it.
@@ -185,10 +195,12 @@ claude-plugin-auto-worktree/
 │   ├── json.sh              # Shared JSON parsing helpers
 │   ├── worktree.sh          # Git worktree detection helpers
 │   ├── bash-filter.sh       # Mutation detection heuristic
+│   ├── bypass.sh            # Session bypass flag helpers
 │   └── config.sh            # User configuration helpers
 ├── tests/
 │   ├── run-tests.sh         # Test runner
 │   ├── test-bash-filter.sh  # Mutation detection tests
+│   ├── test-bypass.sh       # Session bypass tests
 │   ├── test-config.sh       # Configuration unit tests
 │   ├── test-config-integration.sh # Configuration integration tests
 │   ├── test-json.sh         # JSON parsing tests

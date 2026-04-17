@@ -13,6 +13,7 @@ source "${PLUGIN_ROOT}/lib/json.sh"
 source "${PLUGIN_ROOT}/lib/worktree.sh"
 source "${PLUGIN_ROOT}/lib/bash-filter.sh"
 source "${PLUGIN_ROOT}/lib/config.sh"
+source "${PLUGIN_ROOT}/lib/bypass.sh"
 
 # --- Main Logic ---
 main() {
@@ -26,6 +27,11 @@ main() {
 
   # Guard: if we can't parse essential fields, allow
   if [[ -z "$session_id" || -z "$tool_name" || -z "$cwd" ]]; then
+    exit 0
+  fi
+
+  # 0. Bypass active for this session? → allow everything
+  if is_bypass_active "$session_id"; then
     exit 0
   fi
 
@@ -82,8 +88,11 @@ main() {
   fi
 
   # 7. Block and instruct Claude to enter a worktree first
+  local bypass_file
+  bypass_file="$(get_bypass_file "$session_id")"
   echo "You are about to modify files on the default branch." >&2
   echo "Please call the EnterWorktree tool first to create an isolated worktree, then retry your action." >&2
+  echo "BYPASS: If the user explicitly asked to skip worktree creation, run: touch ${bypass_file}" >&2
   exit 2
 }
 

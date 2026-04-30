@@ -14,6 +14,8 @@ source "${PLUGIN_ROOT}/lib/worktree.sh"
 source "${PLUGIN_ROOT}/lib/config.sh"
 source "${PLUGIN_ROOT}/lib/bypass.sh"
 
+readonly NETWORK_TIMEOUT_SECS=8
+
 # GNU coreutils' `timeout` isn't shipped with stock macOS or Git Bash on Windows.
 # Fall back to running without a timeout in that case so the network operations
 # still happen — better to occasionally hang briefly than to silently never run.
@@ -100,7 +102,7 @@ main() {
       if is_pull_enabled; then
         local default_before default_after
         default_before="$(git -C "$cwd" rev-parse "$default_branch" 2>/dev/null || echo "")"
-        if run_with_timeout 8 git -C "$cwd" fetch origin "${default_branch}:${default_branch}" --quiet 2>/dev/null; then
+        if run_with_timeout "$NETWORK_TIMEOUT_SECS" git -C "$cwd" fetch origin "${default_branch}:${default_branch}" --quiet 2>/dev/null; then
           default_after="$(git -C "$cwd" rev-parse "$default_branch" 2>/dev/null || echo "")"
           if [[ -n "$default_before" && -n "$default_after" && "$default_before" != "$default_after" ]]; then
             echo "[auto-worktree] Updated local '${default_branch}' to origin/${default_branch} in the background (no branch switch)."
@@ -116,17 +118,15 @@ main() {
     fi
   fi
 
-  # Pull the latest default branch from origin if enabled (8s timeout when available)
+  # Pull the latest default branch from origin if enabled
   if is_pull_enabled; then
-    if ! run_with_timeout 8 git -C "$cwd" pull --ff-only --quiet 2>/dev/null; then
+    if ! run_with_timeout "$NETWORK_TIMEOUT_SECS" git -C "$cwd" pull --ff-only --quiet 2>/dev/null; then
       echo "[auto-worktree] Warning: failed to pull from origin (offline, timeout, or diverged). Continuing with local state." >&2
     fi
   fi
 
   # Note any leftover working tree state from a previous session
-  if ! git -C "$cwd" diff --quiet 2>/dev/null || \
-     ! git -C "$cwd" diff --cached --quiet 2>/dev/null || \
-     [[ -n "$(git -C "$cwd" ls-files --others --exclude-standard 2>/dev/null)" ]]; then
+  if [[ -n "$(git -C "$cwd" status --porcelain 2>/dev/null)" ]]; then
     echo "[auto-worktree] Note: There are uncommitted changes or untracked files from a previous session."
   fi
 

@@ -3,13 +3,34 @@
   "owner": {
     "name": "rimoapp"
   },
+  "metadata": {
+    "pluginRoot": "./plugins"
+  },
   "plugins": [
     {
       "name": "auto-worktree",
-      "source": "./",
+      "source": "auto-worktree",
+      "version": "1.0.0",
       "description": "Automatically creates git worktrees when Claude modifies files, enabling safe parallel work without git conflicts.",
-      "version": "0.8.0",
-      "license": "MIT"
+      "license": "MIT",
+      "category": "dev"
+    },
+    {
+      "name": "dispatch",
+      "source": "dispatch",
+      "version": "0.1.0",
+      "description": "Launch an interactive Claude Code session in another repository and auto-report its result when it finishes.",
+      "license": "MIT",
+      "category": "dev",
+      "tags": ["workflow", "macos"]
+    },
+    {
+      "name": "rimo-all",
+      "source": "rimo-all",
+      "version": "1.0.0",
+      "description": "Installs all Rimo plugins together (auto-worktree + dispatch). A convenience bundle.",
+      "license": "MIT",
+      "category": "bundle"
     }
   ]
 }

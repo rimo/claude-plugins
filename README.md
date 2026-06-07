@@ -15,6 +15,7 @@ Then install what you want:
 ```
 /plugin install auto-worktree@rimo-tools   # individual plugin
 /plugin install dispatch@rimo-tools         # individual plugin
+/plugin install rimo@rimo-tools             # individual plugin
 /plugin install rimo-all@rimo-tools         # everything (bundle)
 ```
 
@@ -27,6 +28,7 @@ dependencies. After installing, run `/reload-plugins` to activate.
 | :----- | :----------- | :--- |
 | **auto-worktree** | Automatically creates git worktrees when Claude modifies files, enabling safe parallel work without git conflicts. | [plugins/auto-worktree](plugins/auto-worktree/README.md) |
 | **dispatch** | Launch an interactive Claude Code session in another repository (new Terminal.app / iTerm2 tab) and auto-report its result when it finishes. macOS only. | [plugins/dispatch](plugins/dispatch/skills/dispatch/SKILL.md) |
+| **rimo** | Rimo Voice integration — the rimo-cli skill plus the `rimo mcp` server. Shipped from [rimoapp/cli](https://github.com/rimoapp/cli); requires the `rimo` CLI on your PATH. | [rimoapp/cli](https://github.com/rimoapp/cli) |
 | **rimo-all** | Convenience bundle — installing it pulls in all of the above. | — |
 
 ## Repository layout

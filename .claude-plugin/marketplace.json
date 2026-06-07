@@ -25,6 +25,18 @@
       "tags": ["workflow", "macos"]
     },
     {
+      "name": "rimo",
+      "source": {
+        "source": "github",
+        "repo": "rimoapp/cli"
+      },
+      "version": "1.0.0",
+      "description": "Rimo Voice integration — the rimo-cli skill plus the `rimo mcp` server. Requires the rimo CLI on your PATH.",
+      "license": "MIT",
+      "category": "product",
+      "tags": ["rimo-voice", "mcp"]
+    },
+    {
       "name": "rimo-all",
       "source": "rimo-all",
       "version": "1.0.0",

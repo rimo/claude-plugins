@@ -1,14 +1,13 @@
 {
   "name": "rimo-all",
   "version": "1.0.0",
-  "description": "Installs all Rimo plugins together: auto-worktree (safe parallel git worktrees), dispatch (launch Claude Code in another repository), and rimo (Rimo Voice integration). A convenience bundle — installing it pulls in every individual plugin.",
+  "description": "Convenience bundle of the rimoapp dev plugins: auto-worktree (safe parallel git worktrees) and dispatch (launch Claude Code in another repository). Installing it pulls in both. The product integration plugin `rimo` is intentionally not bundled — install it directly with `rimo@rimo-tools` when you need it.",
   "author": {
     "name": "rimoapp"
   },
   "license": "MIT",
   "dependencies": [
     "auto-worktree",
-    "dispatch",
-    "rimo"
+    "dispatch"
   ]
 }

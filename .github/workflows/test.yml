@@ -16,4 +16,8 @@ jobs:
           git config --global user.name "CI"
           git config --global user.email "ci@test"
       - name: Run tests
-        run: bash tests/run-tests.sh
+        run: |
+          for runner in plugins/*/tests/run-tests.sh; do
+            echo "== ${runner} =="
+            bash "${runner}"
+          done

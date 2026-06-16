@@ -4,20 +4,17 @@
     "name": "Rimo",
     "email": "support@rimo.app"
   },
-  "metadata": {
-    "pluginRoot": "./plugins"
-  },
   "plugins": [
     {
       "name": "auto-worktree",
-      "source": "auto-worktree",
+      "source": "./plugins/auto-worktree",
       "description": "Automatically creates git worktrees when Claude modifies files, enabling safe parallel work without git conflicts.",
       "license": "MIT",
       "category": "dev"
     },
     {
       "name": "dispatch",
-      "source": "dispatch",
+      "source": "./plugins/dispatch",
       "description": "Launch an interactive Claude Code session in another repository and auto-report its result when it finishes.",
       "license": "MIT",
       "category": "dev",
@@ -37,7 +34,7 @@
     },
     {
       "name": "rimo-all",
-      "source": "rimo-all",
+      "source": "./plugins/rimo-all",
       "description": "Installs all Rimo plugins together (auto-worktree + dispatch). A convenience bundle.",
       "license": "MIT",
       "category": "bundle"

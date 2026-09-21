@@ -50,6 +50,15 @@ printf '' | bash "$HOOK"
 assert_eq "$before" "$(cat "$SETTINGS")" "second run is a no-op"
 assert_eq "echo mine" "$(json_field "$(cat "$USER_FILE")" '.command')" "saved user statusline not overwritten"
 
+# Existing statusline with extra fields: padding kept on the wrapper entry, full entry saved.
+rm -rf "${HOME}/.claude/rimo-usage"
+printf '{"statusLine":{"type":"command","command":"echo mine","padding":2}}\n' >"$SETTINGS"
+printf '' | bash "$HOOK"
+assert_eq "2" "$(json_field "$(cat "$SETTINGS")" '.statusLine.padding')" "padding preserved on wrapper entry"
+assert_eq "bash \"${PLUGIN_ROOT}/hooks/statusline.sh\"" "$(json_field "$(cat "$SETTINGS")" '.statusLine.command')" "wrapper installed alongside padding"
+assert_eq "2" "$(json_field "$(cat "$USER_FILE")" '.padding')" "saved user entry keeps padding"
+assert_eq "echo mine" "$(json_field "$(cat "$USER_FILE")" '.command')" "saved user entry keeps command"
+
 # Invalid settings.json: hook exits 0 and leaves the file alone.
 printf 'not json' >"$SETTINGS"
 printf '' | bash "$HOOK"; assert_eq "0" "$?" "hook exits 0 on invalid settings.json"

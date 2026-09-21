@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # SessionStart hook: points the user's statusLine at this plugin's wrapper.
 # Plugins cannot declare a statusLine in plugin.json, so the setting has to
-# live in the user's settings.json. Any pre-existing statusline command is
-# saved once so the wrapper can keep running it. Idempotent; always exits 0.
+# live in the user's settings.json. Any pre-existing statusline entry is
+# saved once so the wrapper can keep running its command, and its other
+# fields are kept on the wrapper entry. Claude Code reloads settings.json on
+# save, so the wrapper is active immediately. Idempotent; always exits 0.
 
 trap 'exit 0' ERR
 
@@ -28,13 +30,15 @@ let settings = {};
 if (fs.existsSync(settingsPath)) {
   try { settings = JSON.parse(fs.readFileSync(settingsPath, "utf8")); } catch (e) { process.exit(0); }
 }
-const current = settings.statusLine;
-const isOurs = current && typeof current.command === "string" && /rimo-usage\/hooks\/statusline\.sh/.test(current.command);
-if (current && current.command && !isOurs && !fs.existsSync(userFile)) {
-  fs.writeFileSync(userFile, JSON.stringify({ command: current.command }) + "\n");
+const current = settings.statusLine && typeof settings.statusLine === "object" ? settings.statusLine : {};
+const isOurs = typeof current.command === "string" && /rimo-usage\/hooks\/statusline\.sh/.test(current.command);
+if (current.command && !isOurs && !fs.existsSync(userFile)) {
+  fs.writeFileSync(userFile, JSON.stringify(current) + "\n");
 }
-if (isOurs && current.command === wrapperCmd) process.exit(0);
-settings.statusLine = { type: "command", command: wrapperCmd };
+// Keep the user's other statusLine fields (padding, refreshInterval, hideVimModeIndicator).
+const next = Object.assign({}, current, { type: "command", command: wrapperCmd });
+if (JSON.stringify(current) === JSON.stringify(next)) process.exit(0);
+settings.statusLine = next;
 const tmp = settingsPath + ".rimo-usage.tmp";
 fs.writeFileSync(tmp, JSON.stringify(settings, null, 2) + "\n");
 fs.renameSync(tmp, settingsPath);

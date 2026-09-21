@@ -7,7 +7,8 @@ snapshots to Rimo's OTLP collector, without breaking your existing statusline.
 
 - **statusLine wrapper** — reads the statusline JSON Claude Code feeds it on
   every render. When `rate_limits` is present, it atomically saves the
-  latest snapshot to `~/.claude/rimo-usage/latest-<session_id>.json`, then
+  latest snapshot to `~/.claude/rimo-usage/latest-<session_id>.json`
+  (under `$CLAUDE_CONFIG_DIR` when that is set), then
   hands off to your own statusline command (if you've configured one) or
   prints a compact fallback line (model, context %, 5h %, 7d %). Always
   exits 0 in well under a second.
@@ -15,24 +16,32 @@ snapshots to Rimo's OTLP collector, without breaking your existing statusline.
   the session's latest snapshot to `$OTEL_EXPORTER_OTLP_ENDPOINT`, then
   prune snapshot files older than a day. Failures are silent — a network
   hiccup here never interrupts your session.
-- **SessionStart hooks** — (1) print a one-line warning if
-  `CLAUDE_CODE_ENABLE_TELEMETRY` or `OTEL_EXPORTER_OTLP_ENDPOINT` is not
-  set (nothing is sent); (2) point `statusLine` in `~/.claude/settings.json`
-  at the wrapper above. Plugins cannot declare a statusline in
-  `plugin.json`, so this is how the wrapper gets activated. The change
-  takes effect from the next session.
+- **SessionStart hooks** — (1) show the user a one-line warning (hook
+  `systemMessage`; plain stdout at SessionStart would go to Claude, not to
+  you) when `CLAUDE_CODE_ENABLE_TELEMETRY` or `OTEL_EXPORTER_OTLP_ENDPOINT`
+  is unset (nothing is sent), or when neither `jq` nor `node` is on PATH;
+  (2) point `statusLine` in `~/.claude/settings.json` at the wrapper above,
+  keeping any `padding` / `refreshInterval` you had. Plugins cannot declare
+  a statusline in `plugin.json`, so this is how the wrapper gets activated.
+  Claude Code reloads `settings.json` on save, so the wrapper is active
+  right away.
 
 All hooks trap errors and always exit 0 — this plugin never fails a Claude
 Code session.
 
 ## Keeping your own statusline
 
-If `settings.json` already had a `statusLine` command when the plugin first
+If `settings.json` already had a `statusLine` entry when the plugin first
 ran, it is saved to `~/.claude/rimo-usage/user-statusline.json` and the
-wrapper keeps running it, feeding it the same JSON Claude Code gave the
-wrapper. To change the inner command later, edit that file or set
+wrapper keeps running its `command`, feeding it the same JSON Claude Code
+gave the wrapper. To change the inner command later, edit that file or set
 `RIMO_USAGE_INNER_STATUSLINE`. To stop using the wrapper, uninstall the
 plugin and put your own `statusLine` back in `settings.json`.
+
+If your organization sets `allowManagedHooksOnly` in managed settings,
+Claude Code reads `statusLine` from managed settings only and ignores the
+wrapper in `settings.json`; the snapshots then stop until a managed
+`statusLine` runs the wrapper.
 
 ## Rate-limit snapshot contract
 
@@ -59,10 +68,14 @@ in the statusline data — a `0` is never sent as a stand-in for "unknown".
 
 ## Requirements
 
-- `curl`, `git`, and either `jq` or Node.js (Claude Code requires Node.js,
-  so it's always available as a fallback).
-- Rate-limit percentages are only available for `claude.ai` Pro/Max logins,
-  and only after the first API response in a session.
+- `curl`, `git`, and either `jq` or Node.js on PATH to read the statusline
+  JSON. The native Claude Code binary does not need Node, so a machine may
+  have neither; the hooks then exit quietly and the SessionStart warning
+  says so. Installing the wrapper into `settings.json` needs `node`.
+- Claude Code documents `rate_limits` for `claude.ai` Pro / Max logins (and
+  Claude apps gateway spend limits); a Team login has also been seen to
+  receive it. It appears only after the first API response in a session.
+  The gateway-only `spend_limit` window is not captured.
 
 ## Development
 

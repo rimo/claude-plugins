@@ -6,7 +6,7 @@ PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
 # shellcheck source=./json.sh
 source "${PLUGIN_ROOT}/lib/json.sh"
 
-RIMO_USAGE_DIR="${HOME}/.claude/rimo-usage"
+RIMO_USAGE_DIR="${CLAUDE_CONFIG_DIR:-${HOME}/.claude}/rimo-usage"
 
 plugin_version() {
   local manifest="${PLUGIN_ROOT}/.claude-plugin/plugin.json"

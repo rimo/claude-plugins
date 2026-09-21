@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # JSON helpers for the rimo-usage plugin.
 #
-# Uses the real `jq` binary when available. Otherwise falls back to a
-# Node.js one-liner — Claude Code requires Node.js, so it is always present
-# even on machines without jq. No python3/perl dependency either way.
+# Uses the real `jq` binary when available, otherwise a Node.js one-liner.
+# The native Claude Code binary does not need Node on PATH, so a machine may
+# have neither; every helper then prints nothing and the hooks no-op. No
+# python3/perl dependency either way.
 
 # Extract a dotted-path field (e.g. ".rate_limits.five_hour.used_percentage")
 # from a JSON string. Prints an empty string if the path is missing, null,

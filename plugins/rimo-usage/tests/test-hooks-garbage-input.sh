@@ -32,6 +32,7 @@ check_exit_zero() {
 for garbage in '' 'not json' '{"broken":' 'null' '12345' '{"session_id":null,"rate_limits":"oops"}'; do
   check_exit_zero "statusline.sh with input: ${garbage:0:20}" "$garbage" "${PLUGIN_ROOT}/hooks/statusline.sh"
   check_exit_zero "check-telemetry.sh with input: ${garbage:0:20}" "$garbage" "${PLUGIN_ROOT}/hooks/check-telemetry.sh"
+  check_exit_zero "install-statusline.sh with input: ${garbage:0:20}" "$garbage" "${PLUGIN_ROOT}/hooks/install-statusline.sh"
   check_exit_zero "send-snapshot.sh with input: ${garbage:0:20}" "$garbage" "${PLUGIN_ROOT}/hooks/send-snapshot.sh"
 done
 

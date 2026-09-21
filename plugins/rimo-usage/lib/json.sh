@@ -14,8 +14,8 @@ json_field() {
   if command -v jq &>/dev/null; then
     # -r: unquote string results. -c: compact (single-line) object/array results,
     # so behavior matches the Node fallback below regardless of value type.
-    printf '%s' "$json" | jq -rc "${path} // empty" 2>/dev/null
-    return
+    printf '%s' "$json" | jq -rc "${path} // empty" 2>/dev/null || true
+    return 0
   fi
   if command -v node &>/dev/null; then
     printf '%s' "$json" | node -e '
@@ -32,8 +32,8 @@ try {
   else if (typeof cur === "object") process.stdout.write(JSON.stringify(cur));
   else process.stdout.write(String(cur));
 } catch (e) { process.stdout.write(""); }
-' -- "$path"
-    return
+' -- "$path" || true
+    return 0
   fi
   echo ""
 }

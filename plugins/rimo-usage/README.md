@@ -15,27 +15,24 @@ snapshots to Rimo's OTLP collector, without breaking your existing statusline.
   the session's latest snapshot to `$OTEL_EXPORTER_OTLP_ENDPOINT`, then
   prune snapshot files older than a day. Failures are silent — a network
   hiccup here never interrupts your session.
-- **SessionStart hook** — prints a one-line warning if
+- **SessionStart hooks** — (1) print a one-line warning if
   `CLAUDE_CODE_ENABLE_TELEMETRY` or `OTEL_EXPORTER_OTLP_ENDPOINT` is not
-  set. Sends nothing.
+  set (nothing is sent); (2) point `statusLine` in `~/.claude/settings.json`
+  at the wrapper above. Plugins cannot declare a statusline in
+  `plugin.json`, so this is how the wrapper gets activated. The change
+  takes effect from the next session.
 
 All hooks trap errors and always exit 0 — this plugin never fails a Claude
 Code session.
 
 ## Keeping your own statusline
 
-If you already have a custom statusline command, save it once:
-
-```bash
-mkdir -p ~/.claude/rimo-usage
-cat > ~/.claude/rimo-usage/user-statusline.json <<'EOF'
-{"command": "your-existing-statusline-command"}
-EOF
-```
-
-Or set `RIMO_USAGE_INNER_STATUSLINE` to the command. The wrapper feeds it
-the same JSON on stdin that Claude Code gave the wrapper, so it behaves
-exactly as it did before this plugin was installed.
+If `settings.json` already had a `statusLine` command when the plugin first
+ran, it is saved to `~/.claude/rimo-usage/user-statusline.json` and the
+wrapper keeps running it, feeding it the same JSON Claude Code gave the
+wrapper. To change the inner command later, edit that file or set
+`RIMO_USAGE_INNER_STATUSLINE`. To stop using the wrapper, uninstall the
+plugin and put your own `statusLine` back in `settings.json`.
 
 ## Rate-limit snapshot contract
 

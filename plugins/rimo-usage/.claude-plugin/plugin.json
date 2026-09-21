@@ -8,9 +8,5 @@
     "url": "https://rimo.app"
   },
   "repository": "https://github.com/rimo/claude-plugins",
-  "license": "MIT",
-  "statusLine": {
-    "type": "command",
-    "command": "${CLAUDE_PLUGIN_ROOT}/hooks/statusline.sh"
-  }
+  "license": "MIT"
 }

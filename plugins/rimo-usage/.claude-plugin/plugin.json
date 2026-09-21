@@ -1,0 +1,16 @@
+{
+  "name": "rimo-usage",
+  "version": "0.1.0",
+  "description": "Tracks Claude Code rate-limit usage from the statusline and reports periodic snapshots to Rimo's OTLP collector, while keeping your existing statusline working.",
+  "author": {
+    "name": "Rimo",
+    "email": "support@rimo.app",
+    "url": "https://rimo.app"
+  },
+  "repository": "https://github.com/rimo/claude-plugins",
+  "license": "MIT",
+  "statusLine": {
+    "type": "command",
+    "command": "${CLAUDE_PLUGIN_ROOT}/hooks/statusline.sh"
+  }
+}

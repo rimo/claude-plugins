@@ -42,9 +42,17 @@
       "tags": ["automation", "agents", "scaffolding", "ci"]
     },
     {
+      "name": "rimo-usage",
+      "source": "./plugins/rimo-usage",
+      "description": "Tracks Claude Code rate-limit usage from the statusline and reports periodic snapshots to Rimo's OTLP collector, while keeping your existing statusline working.",
+      "license": "MIT",
+      "category": "dev",
+      "tags": ["telemetry", "usage", "statusline"]
+    },
+    {
       "name": "rimo-all",
       "source": "./plugins/rimo-all",
-      "description": "Installs all Rimo plugins together (auto-worktree + dispatch). A convenience bundle.",
+      "description": "Installs all Rimo plugins together (auto-worktree + dispatch + rimo-usage). A convenience bundle.",
       "license": "MIT",
       "category": "bundle"
     }

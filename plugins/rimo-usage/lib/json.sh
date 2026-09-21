@@ -12,7 +12,9 @@ json_field() {
   local json="$1"
   local path="$2"
   if command -v jq &>/dev/null; then
-    printf '%s' "$json" | jq -r "${path} // empty" 2>/dev/null
+    # -r: unquote string results. -c: compact (single-line) object/array results,
+    # so behavior matches the Node fallback below regardless of value type.
+    printf '%s' "$json" | jq -rc "${path} // empty" 2>/dev/null
     return
   fi
   if command -v node &>/dev/null; then

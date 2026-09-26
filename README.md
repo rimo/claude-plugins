@@ -17,6 +17,7 @@ Then install what you want:
 /plugin install dispatch@rimo-tools         # individual plugin
 /plugin install rimo@rimo-tools             # individual plugin
 /plugin install loop-engineering@rimo-tools # individual plugin
+/plugin install rimo-usage@rimo-tools       # individual plugin
 /plugin install rimo-all@rimo-tools         # everything (bundle)
 ```
 
@@ -31,7 +32,8 @@ dependencies. After installing, run `/reload-plugins` to activate.
 | **dispatch** | Launch an interactive Claude Code session in another repository (new Terminal.app / iTerm2 tab) and auto-report its result when it finishes. macOS only. | [plugins/dispatch](plugins/dispatch/skills/dispatch/SKILL.md) |
 | **rimo** | Rimo Voice integration — the rimo-cli skill plus the `rimo mcp` server. Shipped from [rimo/cli](https://github.com/rimo/cli); requires the `rimo` CLI on your PATH. | [rimo/cli](https://github.com/rimo/cli) |
 | **loop-engineering** | Scaffold a complete self-running agent loop (discover → isolate → build → verify → persist → schedule) into any repository with `/loop-engineering:init`. Based on Addy Osmani's "Loop Engineering" architecture. | [plugins/loop-engineering](plugins/loop-engineering/README.md) |
-| **rimo-all** | Convenience bundle of the dev plugins — pulls in `auto-worktree` + `dispatch`. (The `rimo` product plugin is not bundled; install it directly.) | — |
+| **rimo-usage** | Tracks Claude Code rate-limit usage from the statusline and reports periodic snapshots to Rimo's OTLP collector, while keeping your existing statusline working. | [plugins/rimo-usage](plugins/rimo-usage/README.md) |
+| **rimo-all** | Convenience bundle of the dev plugins — pulls in `auto-worktree` + `dispatch` + `rimo-usage`. (The `rimo` product plugin is not bundled; install it directly.) | — |
 
 ## Repository layout
 
@@ -41,6 +43,7 @@ plugins/
   auto-worktree/                  # plugin: manifest, hooks, lib, tests, docs
   dispatch/                       # plugin: dispatch skill
   loop-engineering/               # plugin: init/status skills + loop templates
+  rimo-usage/                     # plugin: rate-limit usage statusline + telemetry hooks
   rimo-all/                       # bundle: dependencies only
 ```
 

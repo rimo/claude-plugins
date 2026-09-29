@@ -24,15 +24,19 @@ mkdir -p "$CONFIG_DIR" "$RIMO_USAGE_DIR" 2>/dev/null || exit 0
 
 node - "$SETTINGS" "$WRAPPER" "$USER_STATUSLINE_FILE" <<'EOF'
 const fs = require("fs");
-const [settingsPath, wrapper, userFile] = process.argv.slice(2);
+const [linkPath, wrapper, userFile] = process.argv.slice(2);
 const wrapperCmd = `bash "${wrapper}"`;
+// Write through a symlinked settings.json (dotfiles) instead of replacing the link.
+let settingsPath = linkPath;
+try { settingsPath = fs.realpathSync(linkPath); } catch (e) {}
 let settings = {};
 if (fs.existsSync(settingsPath)) {
   try { settings = JSON.parse(fs.readFileSync(settingsPath, "utf8")); } catch (e) { process.exit(0); }
 }
 const current = settings.statusLine && typeof settings.statusLine === "object" ? settings.statusLine : {};
 const isOurs = typeof current.command === "string" && /rimo-usage\/hooks\/statusline\.sh/.test(current.command);
-if (current.command && !isOurs && !fs.existsSync(userFile)) {
+// A non-wrapper entry is the user's current choice, so it replaces any earlier saved one.
+if (current.command && !isOurs) {
   fs.writeFileSync(userFile, JSON.stringify(current) + "\n");
 }
 // Keep the user's other statusLine fields (padding, refreshInterval, hideVimModeIndicator).

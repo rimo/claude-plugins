@@ -57,6 +57,19 @@ EOF
 result="$(resolve_user_email)"
 assert_eq "fallback@example.com" "$result" "Falls back to git config when oauth email is missing"
 
+# --- Case 4: CLAUDE_CONFIG_DIR set → its .claude.json wins over ~/.claude.json ---
+cat >"${HOME}/.claude.json" <<'EOF'
+{"oauthAccount": {"emailAddress": "personal@example.com"}}
+EOF
+export CLAUDE_CONFIG_DIR="${TMPDIR_TEST}/work-claude"
+mkdir -p "$CLAUDE_CONFIG_DIR"
+cat >"${CLAUDE_CONFIG_DIR}/.claude.json" <<'EOF'
+{"oauthAccount": {"emailAddress": "work@example.com"}}
+EOF
+result="$(resolve_user_email)"
+assert_eq "work@example.com" "$result" "Reads the account from CLAUDE_CONFIG_DIR/.claude.json"
+unset CLAUDE_CONFIG_DIR
+
 echo "${PASS} passed, ${FAIL} failed"
 
 if [[ $FAIL -gt 0 ]]; then

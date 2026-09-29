@@ -59,6 +59,26 @@ assert_eq "bash \"${PLUGIN_ROOT}/hooks/statusline.sh\"" "$(json_field "$(cat "$S
 assert_eq "2" "$(json_field "$(cat "$USER_FILE")" '.padding')" "saved user entry keeps padding"
 assert_eq "echo mine" "$(json_field "$(cat "$USER_FILE")" '.command')" "saved user entry keeps command"
 
+# The user switches to another statusline later: the new one is saved and still shown.
+printf '{"statusLine":{"type":"command","command":"echo newer"}}\n' >"$SETTINGS"
+printf '' | bash "$HOOK"
+assert_eq "echo newer" "$(json_field "$(cat "$USER_FILE")" '.command')" "later user statusline replaces the saved one"
+assert_eq "bash \"${PLUGIN_ROOT}/hooks/statusline.sh\"" "$(json_field "$(cat "$SETTINGS")" '.statusLine.command')" "wrapper reinstalled after the user's change"
+out="$(printf '{"session_id":"s1"}' | bash "${PLUGIN_ROOT}/hooks/statusline.sh")"
+assert_eq "newer" "$out" "wrapper runs the user's latest statusline"
+
+# Symlinked settings.json (dotfiles): the link survives and its target is updated.
+rm -rf "${HOME}/.claude/rimo-usage"
+mkdir -p "${TMPDIR_TEST}/dotfiles"
+printf '{"statusLine":{"type":"command","command":"echo linked"}}\n' >"${TMPDIR_TEST}/dotfiles/settings.json"
+rm -f "$SETTINGS"
+ln -s "${TMPDIR_TEST}/dotfiles/settings.json" "$SETTINGS"
+printf '' | bash "$HOOK"
+assert_eq "link" "$([[ -L "$SETTINGS" ]] && echo link || echo file)" "symlinked settings.json stays a symlink"
+assert_eq "bash \"${PLUGIN_ROOT}/hooks/statusline.sh\"" "$(json_field "$(cat "${TMPDIR_TEST}/dotfiles/settings.json")" '.statusLine.command')" "symlink target gets the wrapper"
+assert_eq "echo linked" "$(json_field "$(cat "$USER_FILE")" '.command')" "statusline behind the symlink saved"
+rm -f "$SETTINGS"
+
 # Invalid settings.json: hook exits 0 and leaves the file alone.
 printf 'not json' >"$SETTINGS"
 printf '' | bash "$HOOK"; assert_eq "0" "$?" "hook exits 0 on invalid settings.json"

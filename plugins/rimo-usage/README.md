@@ -31,11 +31,12 @@ Code session.
 
 ## Keeping your own statusline
 
-If `settings.json` already had a `statusLine` entry when the plugin first
-ran, it is saved to `~/.claude/rimo-usage/user-statusline.json` and the
-wrapper keeps running its `command`, feeding it the same JSON Claude Code
-gave the wrapper. To change the inner command later, edit that file or set
-`RIMO_USAGE_INNER_STATUSLINE`. To stop using the wrapper, uninstall the
+Whenever the plugin finds a `statusLine` entry in `settings.json` that isn't
+the wrapper, it saves that entry to `~/.claude/rimo-usage/user-statusline.json`
+and the wrapper keeps running its `command`, feeding it the same JSON Claude
+Code gave the wrapper. So if you set a new statusline later, the wrapper picks
+it up at the next session start. A symlinked `settings.json` stays a symlink.
+You can also set `RIMO_USAGE_INNER_STATUSLINE`. To stop using the wrapper, uninstall the
 plugin and put your own `statusLine` back in `settings.json`.
 
 If your organization sets `allowManagedHooksOnly` in managed settings,
@@ -54,7 +55,7 @@ SessionEnd hooks looks like:
 | `resource.service.name` | resource attribute | always `"claude-code"` |
 | `resource.service.version` | resource attribute | this plugin's version |
 | `tool` | record attribute | always `"claude_code"` |
-| `user.email` | record attribute | from `~/.claude.json` oauth account, else `git config user.email` |
+| `user.email` | record attribute | from the oauth account in `~/.claude.json` (`$CLAUDE_CONFIG_DIR/.claude.json` when set), else `git config user.email` |
 | `session.id` | record attribute | the Claude Code session id |
 | `five_hour_pct` | record attribute | omitted if the 5h window is absent |
 | `seven_day_pct` | record attribute | omitted if the 7d window is absent |

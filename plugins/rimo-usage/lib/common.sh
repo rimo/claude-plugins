@@ -16,6 +16,8 @@ plugin_version() {
 
 latest_snapshot_file() {
   local session_id="$1"
+  # The id becomes part of a path, so anything but a plain token is rejected.
+  [[ "$session_id" =~ ^[A-Za-z0-9_-]+$ ]] || { echo ""; return; }
   echo "${RIMO_USAGE_DIR}/latest-${session_id}.json"
 }
 
@@ -23,6 +25,7 @@ latest_snapshot_file() {
 atomic_write() {
   local path="$1"
   local content="$2"
+  [[ -n "$path" ]] || return 1
   mkdir -p "$(dirname "$path")" 2>/dev/null || return 1
   local tmp
   tmp="$(mktemp "${path}.XXXXXX" 2>/dev/null)" || return 1
@@ -36,6 +39,7 @@ atomic_write() {
 # Resolve the user's email: ~/.claude.json oauthAccount, then git config user.email.
 resolve_user_email() {
   local claude_json="${HOME}/.claude.json"
+  [[ -n "${CLAUDE_CONFIG_DIR:-}" ]] && claude_json="${CLAUDE_CONFIG_DIR}/.claude.json"
   local email=""
   if [[ -f "$claude_json" ]]; then
     email="$(json_field "$(cat "$claude_json")" '.oauthAccount.emailAddress')"

@@ -41,6 +41,16 @@ export OTEL_EXPORTER_OTLP_ENDPOINT="http://127.0.0.1:1"
 check_exit_zero "send-snapshot.sh with unreachable endpoint" '{"session_id":"sess-x"}' "${PLUGIN_ROOT}/hooks/send-snapshot.sh"
 unset OTEL_EXPORTER_OTLP_ENDPOINT
 
+# A session id with path characters never becomes a file outside the snapshot dir.
+check_exit_zero "statusline.sh with a traversal session id" \
+  '{"session_id":"../../escaped","rate_limits":{"five_hour":{"used_percentage":1}}}' "${PLUGIN_ROOT}/hooks/statusline.sh"
+if [[ -n "$(find "$TMPDIR_TEST" -name '*escaped*' 2>/dev/null)" ]]; then
+  FAIL=$((FAIL + 1))
+  echo "FAIL: traversal session id wrote a snapshot file" >&2
+else
+  PASS=$((PASS + 1))
+fi
+
 echo "${PASS} passed, ${FAIL} failed"
 
 if [[ $FAIL -gt 0 ]]; then

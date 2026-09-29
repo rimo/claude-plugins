@@ -22,7 +22,7 @@ unset CLAUDE_CODE_ENABLE_TELEMETRY OTEL_EXPORTER_OTLP_ENDPOINT
 out="$(printf '{"session_id":"s1"}' | bash "$HOOK")"; assert_eq "0" "$?" "exits 0 when telemetry unset"
 msg="$(json_field "$out" '.systemMessage')"
 assert_eq "true" "$([[ "$msg" == *"[rimo-usage]"* ]] && echo true || echo false)" "systemMessage carries the plugin tag"
-assert_eq "true" "$([[ "$msg" == *"setup-rimo-usage.sh"* ]] && echo true || echo false)" "systemMessage names the setup script"
+assert_eq "true" "$([[ "$msg" == *"Claude Team account"* ]] && echo true || echo false)" "systemMessage names the company account"
 assert_eq "true" "$([[ "$msg" == *"OTEL_EXPORTER_OTLP_ENDPOINT"* ]] && echo true || echo false)" "systemMessage names the env vars"
 assert_eq "1" "$(printf '%s\n' "$out" | grep -c .)" "output is a single line"
 

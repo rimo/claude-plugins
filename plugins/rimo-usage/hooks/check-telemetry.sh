@@ -10,7 +10,7 @@ trap 'exit 0' ERR
 MESSAGE=""
 
 if [[ -z "${CLAUDE_CODE_ENABLE_TELEMETRY:-}" || -z "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" ]]; then
-  MESSAGE="[rimo-usage] Telemetry is not configured, so rate-limit snapshots will not be sent. Run the setup script (curl -fsSL https://rimo.github.io/claude-otel-gcp/setup-rimo-usage.sh | bash) or set CLAUDE_CODE_ENABLE_TELEMETRY and OTEL_EXPORTER_OTLP_ENDPOINT."
+  MESSAGE="[rimo-usage] Telemetry is not configured, so rate-limit snapshots will not be sent. Log in with your company Claude Team account (the settings come from the Claude admin console) or set CLAUDE_CODE_ENABLE_TELEMETRY and OTEL_EXPORTER_OTLP_ENDPOINT."
 fi
 
 if ! command -v jq >/dev/null 2>&1 && ! command -v node >/dev/null 2>&1; then

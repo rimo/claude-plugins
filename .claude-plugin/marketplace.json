@@ -26,7 +26,7 @@
         "source": "github",
         "repo": "rimo/cli"
       },
-      "description": "Rimo Voice integration — the rimo-cli skill plus the `rimo mcp` server. Requires the rimo CLI on your PATH.",
+      "description": "Rimo integration — the rimo-cli skill plus the `rimo mcp` server. Requires the rimo CLI on your PATH.",
       "repository": "https://github.com/rimo/cli",
       "license": "MIT",
       "category": "product",

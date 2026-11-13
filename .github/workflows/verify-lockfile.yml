@@ -1,0 +1,46 @@
+name: Verify Actions Lockfile
+
+# .github/workflows/actions.lock（GitHub Actions の workflow lockfile）が全 workflow の uses: を
+# 覆っていて、固定した commit が今も upstream の tag から辿れることを検査する。
+#
+# この repo の workflow は全て actions.lock に載っていて、GitHub Actions は lockfile に記録した
+# commit で action を取得する。uses: と lockfile がずれた workflow は job が始まる前に
+# startup_failure になり、PR の check には fail として出ない。それに気づけるのがこの job。
+# uses: を変えたら `gh actions-lock` を実行して lockfile も一緒に commit する。
+# Dependabot は版を上げる PR の中で lockfile も更新する。
+#
+# extension の版を固定するのは、v1 より前は版の間で lockfile の形式が変わるため。
+# 上げるときは `gh actions-lock --relock` と一緒に上げる。
+# Docs: https://docs.github.com/actions/concepts/security/workflow-dependency-lockfiles
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GH_ACTIONS_LOCK_VERSION: v0.4.1
+
+jobs:
+  verify:
+    name: Verify Actions Lockfile
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install gh-actions-lock
+        run: gh extension install github/gh-actions-lock --pin "${GH_ACTIONS_LOCK_VERSION}"
+
+      - name: Verify
+        run: gh actions-lock --verify

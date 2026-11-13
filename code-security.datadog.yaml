@@ -1,0 +1,10 @@
+# Datadog Code Security のこの repo 用の設定(org の設定より優先される)。
+# https://docs.datadoghq.com/security/code_security/guides/configuration/
+schema-version: v1.7
+iac:
+  ignore-rules:
+    # action の固定は .github/workflows/actions.lock(GitHub Actions の workflow lockfile)で行い、
+    # uses: は完全な版の tag の表記にしている。このルールは uses: の文字列に 40 桁の SHA があるかだけを
+    # 見るため、lockfile で固定していても全件を指摘する。lockfile に無い uses: は
+    # verify-lockfile.yml の check と、実行時の startup_failure で止まる(rimo/rimo-frontend#21615)。
+    - cicd-github-unpinned-actions-full-length-commit-sha

@@ -1,0 +1,15 @@
+# GitHub Actions の action の版を上げる PR を作る。action は .github/workflows/actions.lock
+# (workflow lockfile)で commit に固定しており、Dependabot は版を上げる PR の中で lockfile も更新する。
+# 公開直後の版は避けたいので、公開から 7 日待ってから上げる(cooldown)。
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
